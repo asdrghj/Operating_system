@@ -33,9 +33,9 @@ main()
 	    printf("CHILD: time in parent -- %s\n", buf); 
 	    //printf("CHILD parent pid -- %20s\n", buf[24]);
 	    close(fifo_read);
-	    sleep(4);
+	    sleep(2);
 	    time_t child_time = time(0);
-	    printf("CHILD: time in child + 4 sec -- %s\n", ctime(&child_time));
+	    printf("CHILD: time in child + 2 sec -- %s\n", ctime(&child_time));
 	    
 	    break;
 	}
