@@ -38,7 +38,6 @@ void *writing_threadFunc(void *arg)
 	pthread_exit(0);
 }
 
-
 void *reading_threadFunc(void *arg)
 {
 	int flag = 0;
@@ -89,8 +88,7 @@ int main()
 		pthread_join(read[i], NULL);
 	}
 
-	printf("End of record \n");
-	
+	printf("End of record \n");	
 	pthread_mutex_destroy(&mutex);
 
 	return 0;
