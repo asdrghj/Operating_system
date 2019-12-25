@@ -9,6 +9,7 @@
 #define END_OF_RECORD 11
 
 pthread_mutex_t mutex;
+pthread_cond_t cond;
 
 int data[1024];
 int size = 0;
@@ -22,22 +23,24 @@ void *writing_threadFunc(void *arg)
 
 		if(size ==  END_OF_RECORD)
 		{
+			pthread_cond_broadcast(&cond);
 			pthread_mutex_unlock(&mutex);
 			break;
 		}
 
 		size++;
 		data[size] = size;
+		pthread_cond_broadcast(&cond);
 		pthread_mutex_unlock(&mutex);
 
 		sleep(1);
 	}
 
 	printf("Writing thread: Exit \n");
+	//pthread_cond_broadcast(&cond);
 	printf("\n");
 	pthread_exit(0);
 }
-
 
 void *reading_threadFunc(void *arg)
 {
@@ -45,12 +48,16 @@ void *reading_threadFunc(void *arg)
 	while(1)
 	{
 		pthread_mutex_lock(&mutex);
+		//pthread_cond_wait(&cond, &mutex);
 
 		if(flag == 1)
 		{
+			pthread_cond_broadcast(&cond);
 			pthread_mutex_unlock(&mutex);
 			break;
 		}
+
+		pthread_cond_wait(&cond, &mutex);
 		
 		printf("Reading thread %u\n", (unsigned int)pthread_self());
 		int i;
@@ -82,16 +89,15 @@ int main()
 	{
 		pthread_create(&read[i], NULL, reading_threadFunc, NULL);
 	}
+
 	pthread_join(write, NULL);
-	//sleep(2);
 	for(i = 0; i<10; i++)
 	{
 		pthread_join(read[i], NULL);
 	}
 
 	printf("End of record \n");
-	
 	pthread_mutex_destroy(&mutex);
-
+	pthread_cond_destroy(&cond);
 	return 0;
 }
