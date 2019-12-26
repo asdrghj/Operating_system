@@ -27,7 +27,8 @@ void *writing_threadFunc(void *arg)
 			pthread_mutex_unlock(&mutex);
 			break;
 		}
-
+		
+		printf("Writing thread: Recorded the value -- %d\n", size);
 		size++;
 		data[size] = size;
 		pthread_cond_broadcast(&cond);
@@ -52,7 +53,6 @@ void *reading_threadFunc(void *arg)
 
 		if(flag == 1)
 		{
-			pthread_cond_broadcast(&cond);
 			pthread_mutex_unlock(&mutex);
 			break;
 		}
