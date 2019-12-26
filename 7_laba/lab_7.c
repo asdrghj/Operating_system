@@ -25,7 +25,7 @@ void *writing_threadFunc(void *arg)
 			pthread_rwlock_unlock(&lock);
 			break;
 		}
-
+		printf("Writing thread: Recorded the value -- %d\n", size);
 		size++;
 		data[size] = size;
 		pthread_rwlock_unlock(&lock);
