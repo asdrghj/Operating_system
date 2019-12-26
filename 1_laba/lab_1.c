@@ -7,7 +7,7 @@
 
 void atex_func()
 {
-	printf("Вызов atexit():  %d\n", getpid());
+	printf("Вызов atexit(): pid --  %d\n", getpid());
 }
 
 main()
