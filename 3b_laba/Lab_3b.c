@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
+#include <errno.h>
 
 #define FIFO_FILE "FIFO"
 
@@ -25,7 +26,7 @@ main()
 			int fifo_read = open(FIFO_FILE, O_RDONLY);
 			if (fifo_read == -1)
 			{
-				printf("Fifo cannot open to read \n");
+				perror("Fifo cannot open to read \n");
 				return 0;
 			}
 			char buf[25];
@@ -44,7 +45,7 @@ main()
 			int fifo_write = open(FIFO_FILE, O_WRONLY);
 			if(fifo_write == -1)
 			{
-				printf("Fifo cannot open to write \n");
+				perror("Fifo cannot open to write \n");
 				return 0;
 			}
 			time_t parent_time = time(0);
