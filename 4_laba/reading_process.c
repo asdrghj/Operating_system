@@ -24,7 +24,7 @@ int main()
 	char *addr = shmat(shmid, NULL, 0);
 	if (addr == (char*)-1)
 	{
-		perror("Shmat error\n");
+		perror("Shmat error \n");
 		return 0;
 	}
 
