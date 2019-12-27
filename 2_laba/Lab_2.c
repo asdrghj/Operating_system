@@ -52,8 +52,6 @@ int main()
 	dptr = opendir("./");
 	while((ds = readdir(dptr)) != NULL )
 	{
-	//	printf("%s \n" ,ds->d_name);
-//		name = ds->d_name;
 		stat(ds->d_name,&buf);
 		print_perms(buf.st_mode);
 		printf("%2d", buf.st_nlink);
@@ -73,8 +71,6 @@ int main()
 
 		printf(" %s " , datestring );
 	
-	//	printf()
-	//
 	printf("%s \n" ,ds->d_name);
 	}
 	closedir(dptr);
