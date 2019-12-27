@@ -34,7 +34,8 @@ main()
 	    	printf("Parent: Мой PID --%d\n", getpid());
 	    	printf("Parent: PID моего потомка --%d\n", pid);
 	    	printf("Parent: Жду, пока потомок не вызовет exit... \n");
-	    	wait(NULL);
+	    	//wait(NULL);
+			waitpid(pid, &rv, WUNTRACED);
 	    	printf("Parent: Код возврата потомка:%d\n", WEXITSTATUS(rv));
 	    	printf("Parent: Выход\n");
     }
