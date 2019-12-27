@@ -1,140 +1,81 @@
-#include <dirent.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <sys/stat.h>
 #include <sys/types.h>
-#include <time.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include <pwd.h>
 #include <grp.h>
+#include <time.h>
+#include <locale.h>
+#include <langinfo.h>
+#include <stdint.h>
 
-void printFileType(pid_t);
-void printPerms(pid_t);
-void printUserOwner(pid_t);
-void printGroupOwner(pid_t);
-void printSize(pid_t);
-
-int main(void)
+void print_perms(mode_t perms)
 {
-    struct dirent **namelist;
-    int n;
+	if(perms & S_IFREG)
+		printf("-");
+	else if(perms & S_IFLNK)
+		printf("l");
+	else if(perms & S_IFDIR)
+		printf("d");
+	else if(perms & S_IFCHR)
+		printf("c");
+	else if(perms & S_IFBLK)
+		printf("b");
+	else if(perms & S_IFIFO)
+		printf("p");
+	else if(perms & S_IFSOCK)
+		printf("s");
 
-    n = scandir(".", &namelist, NULL, NULL);
-    if (n == -1) {
-        perror("scandir");
-        exit(EXIT_FAILURE);
-    }
+	printf( (perms & S_IRUSR) ? "r" : "-");
+	printf( (perms & S_IWUSR) ? "w" : "-");
+	printf( (perms & S_IXUSR) ? "x" : "-");
+	printf( (perms & S_IRGRP) ? "r" : "-");
+	printf( (perms & S_IWGRP) ? "w" : "-");
+	printf( (perms & S_IXGRP) ? "x" : "-");
+	printf( (perms & S_IROTH) ? "r" : "-");
+	printf( (perms & S_IWOTH) ? "w" : "-");
+	printf( (perms & S_IXOTH) ? "x" : "-");
 
-    printf("total %i\n", n);
-    while (n--)
+}
+
+int main()
+{
+	DIR* dptr ;
+	struct dirent* ds;
+	struct stat buf;
+	struct passwd *pwd;
+	struct group *grp;
+	struct tm *tm;
+	char datestring[256];
+	dptr = opendir("./");
+	while((ds = readdir(dptr)) != NULL )
 	{
-        static struct stat tmp_stat;
+	//	printf("%s \n" ,ds->d_name);
+//		name = ds->d_name;
+		stat(ds->d_name,&buf);
+		print_perms(buf.st_mode);
+		printf("%2d", buf.st_nlink);
+		if((pwd = getpwuid(buf.st_uid))!=NULL)
+			printf(" %-9.9s " , pwd->pw_name);
+		else
+			printf(" %-8d " , buf.st_uid);
+		if((grp = getgrgid(buf.st_gid))!=NULL)
+			printf("%-9.9s" , grp->gr_name);
+		else
+			printf("%-8d" , buf.st_gid);
+		
+		printf("%5jd", (intmax_t)buf.st_size);
+		
+		tm = localtime(&buf.st_mtime);
+		strftime(datestring, sizeof(datestring),nl_langinfo(D_T_FMT),tm);
 
-        if(stat(namelist[n]->d_name, &tmp_stat) == 0)
-        {
-            printFileType(tmp_stat.st_mode);
-            printPerms(tmp_stat.st_mode);
-            printf(" %lu", tmp_stat.st_nlink);
-            printf(" ");
-            printUserOwner(tmp_stat.st_uid);
-            printf(" ");
-            printGroupOwner(tmp_stat.st_gid);
-            printf(" ");
-            printSize(tmp_stat.st_size);
-            printf(" ");
-            printf("%s", ctime(&tmp_stat.st_mtime));
-            printf("%s", namelist[n]->d_name);
-            printf("\n");
-        }
-        free(namelist[n]);
-    }
-
-    free(namelist);
-    exit(EXIT_SUCCESS);
-}
-
-void printFileType(pid_t _mode)
-{
-            switch (_mode & S_IFMT)
-            {
-            case S_IFBLK:
-                printf("b");
-                break;
-            case S_IFCHR:
-                printf("c");
-                break;
-            case S_IFDIR:
-                printf("d");
-                break;
-            case S_IFIFO:
-                printf("p");
-                break;
-            case S_IFLNK:
-                printf("l");
-                break;
-            case S_IFSOCK:
-                printf("s");
-                break;
-            default:
-                printf("-");
-                break;
-            }
-}
-
-void printPerms(pid_t _mode)
-{
-    if(_mode & 0400)
-        printf("r");
-    else
-        printf("-");
-    if(_mode & 0200)
-        printf("w");
-    else
-        printf("-");
-    if(_mode & 0100)
-        printf("x");
-    else
-        printf("-");
-    if(_mode & 0040)
-        printf("r");
-    else
-        printf("-");
-    if(_mode & 0020)
-        printf("w");
-    else
-        printf("-");
-    if(_mode & 0010)
-        printf("x");
-    else
-        printf("-");
-    if(_mode & 0004)
-        printf("r");
-    else
-        printf("-");
-    if(_mode & 0002)
-        printf("w");
-    else
-        printf("-");
-    if(_mode & 0001)
-        printf("x");
-    else
-        printf("-");
-}
-
-void printUserOwner(pid_t _uid)
-{
-    struct passwd *pws;
-    pws = getpwuid(_uid);
-    printf("%s", pws->pw_name);
-}
-
-void printGroupOwner(pid_t _gid)
-{
-    struct group *gp;
-    gp = getgrgid(_gid);
-    printf("%s", gp->gr_name);
-}
-
-void printSize(pid_t _size)
-{
-    printf("%5d", _size);
+		printf(" %s " , datestring );
+	
+	//	printf()
+	//
+	printf("%s \n" ,ds->d_name);
+	}
+	closedir(dptr);
 }
