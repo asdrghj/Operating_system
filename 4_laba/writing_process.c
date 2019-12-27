@@ -43,5 +43,8 @@ int main()
 		sleep(1);
 	}
 
+	shmdt(shmem_file);
+	shmctl(shmid, IPC_RMID, 0);
+
 	return 0;
 }
